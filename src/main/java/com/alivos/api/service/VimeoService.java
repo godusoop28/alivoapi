@@ -18,6 +18,9 @@ import java.net.http.HttpResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,8 +41,16 @@ public class VimeoService {
             .build();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static final Set<String> DEFAULT_EMBED_DOMAINS = Set.of(
+            "localhost",
+            "alivoweb-uuoo.vercel.app"
+    );
+
     @Value("${app.vimeo.access-token:}")
     private String vimeoAccessToken;
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOriginsProperty;
 
     public String extractVimeoId(String url) {
         for (Pattern pattern : VIMEO_ID_PATTERNS) {
@@ -91,12 +102,45 @@ public class VimeoService {
             if (uploadLink == null || vimeoId == null) {
                 throw new ApiException(HttpStatus.BAD_GATEWAY, "Respuesta inesperada de Vimeo al crear el ticket de subida.");
             }
+            whitelistEmbedDomains(vimeoId);
             return new VimeoUploadTicketDto(uploadLink, uri, vimeoId, "https://vimeo.com/" + vimeoId);
         } catch (ApiException ex) {
             throw ex;
         } catch (Exception ex) {
             log.warn("Error creando ticket de subida en Vimeo: {}", ex.getMessage());
             throw new ApiException(HttpStatus.BAD_GATEWAY, "No se pudo crear el ticket de subida en Vimeo.");
+        }
+    }
+
+    /**
+     * New Vimeo uploads default to embed=whitelist with no domains allowed, so
+     * the player shows a privacy error until the site's own domain is added.
+     * Best-effort: failures here (e.g. token missing the "edit" scope) must
+     * not block the upload itself, only the embed will need a manual fix.
+     */
+    private void whitelistEmbedDomains(String vimeoId) {
+        Set<String> domains = new LinkedHashSet<>(DEFAULT_EMBED_DOMAINS);
+        Arrays.stream(allowedOriginsProperty.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(origin -> origin.replaceFirst("^https?://", "").replaceFirst("/$", ""))
+                .forEach(domains::add);
+
+        for (String domain : domains) {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("https://api.vimeo.com/videos/" + vimeoId + "/privacy/domains/" + domain))
+                        .header("Authorization", "bearer " + vimeoAccessToken)
+                        .timeout(Duration.ofSeconds(5))
+                        .PUT(HttpRequest.BodyPublishers.noBody())
+                        .build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    log.warn("No se pudo habilitar el dominio '{}' para el video {}: status {}", domain, vimeoId, response.statusCode());
+                }
+            } catch (Exception ex) {
+                log.warn("Error habilitando el dominio '{}' para el video {}: {}", domain, vimeoId, ex.getMessage());
+            }
         }
     }
 
