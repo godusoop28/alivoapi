@@ -2,6 +2,8 @@ package com.alivos.api.controller;
 
 import com.alivos.api.dto.VimeoResolveRequest;
 import com.alivos.api.dto.VimeoResolvedDto;
+import com.alivos.api.dto.VimeoUploadTicketDto;
+import com.alivos.api.dto.VimeoUploadTicketRequest;
 import com.alivos.api.service.VimeoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +24,10 @@ public class VimeoController {
     @PostMapping("/resolve")
     public VimeoResolvedDto resolve(@Valid @RequestBody VimeoResolveRequest request) {
         return vimeoService.resolve(request.getUrl());
+    }
+
+    @PostMapping("/upload-ticket")
+    public VimeoUploadTicketDto uploadTicket(@Valid @RequestBody VimeoUploadTicketRequest request) {
+        return vimeoService.createUploadTicket(request.getFileName(), request.getFileSizeBytes());
     }
 }

@@ -1,10 +1,14 @@
 package com.alivos.api.service;
 
 import com.alivos.api.dto.VimeoResolvedDto;
+import com.alivos.api.dto.VimeoUploadTicketDto;
+import com.alivos.api.exception.ApiException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -49,6 +53,51 @@ public class VimeoService {
 
     public String buildEmbedUrl(String vimeoId) {
         return "https://player.vimeo.com/video/" + vimeoId;
+    }
+
+    public VimeoUploadTicketDto createUploadTicket(String fileName, long fileSizeBytes) {
+        if (vimeoAccessToken == null || vimeoAccessToken.isBlank()) {
+            throw ApiException.badRequest(
+                    "Vimeo access token no configurado. Configura VIMEO_ACCESS_TOKEN con permisos de subida (scope \"upload\").");
+        }
+
+        ObjectNode upload = objectMapper.createObjectNode();
+        upload.put("approach", "tus");
+        upload.put("size", fileSizeBytes);
+        ObjectNode body = objectMapper.createObjectNode();
+        body.set("upload", upload);
+        body.put("name", fileName);
+
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.vimeo.com/me/videos"))
+                    .header("Authorization", "bearer " + vimeoAccessToken)
+                    .header("Accept", "application/vnd.vimeo.*+json;version=3.4")
+                    .header("Content-Type", "application/json")
+                    .timeout(Duration.ofSeconds(10))
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                log.warn("Vimeo rechazó la creación del ticket de subida (status {}): {}", response.statusCode(), response.body());
+                throw new ApiException(HttpStatus.BAD_GATEWAY,
+                        "No se pudo crear el ticket de subida en Vimeo. Verifica el token y su alcance (scope) de subida.");
+            }
+
+            JsonNode json = objectMapper.readTree(response.body());
+            String uploadLink = json.path("upload").path("upload_link").asText(null);
+            String uri = json.path("uri").asText(null);
+            String vimeoId = uri != null && uri.startsWith("/videos/") ? uri.substring("/videos/".length()) : null;
+            if (uploadLink == null || vimeoId == null) {
+                throw new ApiException(HttpStatus.BAD_GATEWAY, "Respuesta inesperada de Vimeo al crear el ticket de subida.");
+            }
+            return new VimeoUploadTicketDto(uploadLink, uri, vimeoId, "https://vimeo.com/" + vimeoId);
+        } catch (ApiException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.warn("Error creando ticket de subida en Vimeo: {}", ex.getMessage());
+            throw new ApiException(HttpStatus.BAD_GATEWAY, "No se pudo crear el ticket de subida en Vimeo.");
+        }
     }
 
     public VimeoResolvedDto resolve(String url) {
