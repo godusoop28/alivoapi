@@ -63,8 +63,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/payments/mercadopago/webhook").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/vimeo/resolve").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/vimeo/upload-ticket").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/uploads").hasRole("ADMIN")
+                        // /api/vimeo/upload-ticket and /api/uploads are open to any
+                        // authenticated user — students use them to attach a
+                        // photo/video/PDF to a task submission.
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -16,16 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/vimeo")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class VimeoController {
 
     private final VimeoService vimeoService;
 
     @PostMapping("/resolve")
+    @PreAuthorize("hasRole('ADMIN')")
     public VimeoResolvedDto resolve(@Valid @RequestBody VimeoResolveRequest request) {
         return vimeoService.resolve(request.getUrl());
     }
 
+    // Any authenticated user (not just admins) can request a ticket: students
+    // use this to attach a video directly to a task submission.
     @PostMapping("/upload-ticket")
     public VimeoUploadTicketDto uploadTicket(@Valid @RequestBody VimeoUploadTicketRequest request) {
         return vimeoService.createUploadTicket(request.getFileName(), request.getFileSizeBytes());
