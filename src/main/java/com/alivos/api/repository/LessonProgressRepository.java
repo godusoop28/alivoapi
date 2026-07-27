@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface LessonProgressRepository extends JpaRepository<LessonProgress, String> {
     Optional<LessonProgress> findByUserIdAndLessonId(String userId, String lessonId);
+    void deleteByLessonId(String lessonId);
 
     @Query("select lp from LessonProgress lp where lp.user.id = :userId and lp.lesson.module.course.id = :courseId")
     List<LessonProgress> findByUserIdAndCourseId(@Param("userId") String userId, @Param("courseId") String courseId);

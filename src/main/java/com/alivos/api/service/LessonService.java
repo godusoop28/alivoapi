@@ -8,11 +8,14 @@ import com.alivos.api.entity.Enrollment;
 import com.alivos.api.entity.Lesson;
 import com.alivos.api.entity.LessonProgress;
 import com.alivos.api.entity.LessonType;
+import com.alivos.api.entity.TaskSubmission;
 import com.alivos.api.exception.ApiException;
 import com.alivos.api.repository.CourseModuleRepository;
 import com.alivos.api.repository.EnrollmentRepository;
 import com.alivos.api.repository.LessonProgressRepository;
 import com.alivos.api.repository.LessonRepository;
+import com.alivos.api.repository.TaskCommentRepository;
+import com.alivos.api.repository.TaskSubmissionRepository;
 import com.alivos.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,8 @@ public class LessonService {
     private final CourseModuleRepository moduleRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final LessonProgressRepository lessonProgressRepository;
+    private final TaskSubmissionRepository taskSubmissionRepository;
+    private final TaskCommentRepository taskCommentRepository;
     private final UserRepository userRepository;
     private final VimeoService vimeoService;
 
@@ -93,6 +98,15 @@ public class LessonService {
         if (!lessonRepository.existsById(id)) {
             throw ApiException.notFound("Lección no encontrada");
         }
+
+        List<TaskSubmission> submissions = taskSubmissionRepository.findByLessonId(id);
+        if (!submissions.isEmpty()) {
+            List<String> submissionIds = submissions.stream().map(TaskSubmission::getId).toList();
+            taskCommentRepository.deleteByTaskSubmissionIdIn(submissionIds);
+            taskSubmissionRepository.deleteAll(submissions);
+        }
+        lessonProgressRepository.deleteByLessonId(id);
+
         lessonRepository.deleteById(id);
     }
 

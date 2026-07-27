@@ -4,6 +4,7 @@ import com.alivos.api.dto.ModuleDto;
 import com.alivos.api.dto.ModuleRequest;
 import com.alivos.api.entity.Course;
 import com.alivos.api.entity.CourseModule;
+import com.alivos.api.entity.Lesson;
 import com.alivos.api.exception.ApiException;
 import com.alivos.api.repository.CourseModuleRepository;
 import com.alivos.api.repository.CourseRepository;
@@ -22,6 +23,7 @@ public class CourseModuleService {
     private final CourseModuleRepository moduleRepository;
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
+    private final LessonService lessonService;
 
     @Transactional
     public ModuleDto createModule(String courseId, ModuleRequest input) {
@@ -67,6 +69,10 @@ public class CourseModuleService {
     public void deleteModule(String id) {
         if (!moduleRepository.existsById(id)) {
             throw ApiException.notFound("Módulo no encontrado");
+        }
+        List<Lesson> lessons = lessonRepository.findByModuleIdOrderByOrderIndexAsc(id);
+        for (Lesson lesson : lessons) {
+            lessonService.deleteLesson(lesson.getId());
         }
         moduleRepository.deleteById(id);
     }

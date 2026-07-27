@@ -8,4 +8,5 @@ import java.util.List;
 public interface TaskCommentRepository extends JpaRepository<TaskComment, String> {
     List<TaskComment> findByTaskSubmissionIdOrderByCreatedAtAsc(String taskSubmissionId);
     List<TaskComment> findByTaskSubmissionIdInOrderByCreatedAtAsc(List<String> taskSubmissionIds);
+    void deleteByTaskSubmissionIdIn(List<String> taskSubmissionIds);
 }
