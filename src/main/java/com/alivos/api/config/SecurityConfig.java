@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/vimeo/resolve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/vimeo/upload-ticket").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/uploads").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
