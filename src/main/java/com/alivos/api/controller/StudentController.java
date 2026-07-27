@@ -1,8 +1,9 @@
 package com.alivos.api.controller;
 
 import com.alivos.api.dto.CourseDto;
+import com.alivos.api.dto.MyTaskDto;
 import com.alivos.api.dto.StudentDashboardDto;
-import com.alivos.api.dto.TaskSubmitRequest;
+import com.alivos.api.dto.TaskCommentRequest;
 import com.alivos.api.security.SecurityUtils;
 import com.alivos.api.service.CourseService;
 import com.alivos.api.service.LessonService;
@@ -49,14 +50,19 @@ public class StudentController {
         return Map.of("ok", true);
     }
 
-    @PostMapping("/tasks/{lessonId}/submit")
-    public Map<String, Boolean> submitTask(
+    @GetMapping("/tasks/{lessonId}")
+    public MyTaskDto getMyTask(@PathVariable String lessonId, Authentication authentication) {
+        String userId = SecurityUtils.requireUserId(authentication);
+        return taskSubmissionService.getMyTask(userId, lessonId);
+    }
+
+    @PostMapping("/tasks/{lessonId}/comments")
+    public MyTaskDto addTaskComment(
             @PathVariable String lessonId,
-            @RequestBody TaskSubmitRequest request,
+            @RequestBody TaskCommentRequest request,
             Authentication authentication
     ) {
         String userId = SecurityUtils.requireUserId(authentication);
-        taskSubmissionService.submitTask(userId, lessonId, request);
-        return Map.of("ok", true);
+        return taskSubmissionService.addStudentComment(userId, lessonId, request);
     }
 }

@@ -58,7 +58,7 @@ public class LessonService {
         applyVimeoFields(lesson, input.getVimeoUrl());
 
         lesson = lessonRepository.save(lesson);
-        return CourseMapper.toLessonDto(lesson, java.util.Map.of());
+        return CourseMapper.toLessonDto(lesson, java.util.Map.of(), true);
     }
 
     @Transactional
@@ -85,7 +85,7 @@ public class LessonService {
         }
 
         lesson = lessonRepository.save(lesson);
-        return CourseMapper.toLessonDto(lesson, java.util.Map.of());
+        return CourseMapper.toLessonDto(lesson, java.util.Map.of(), true);
     }
 
     @Transactional

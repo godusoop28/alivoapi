@@ -2,6 +2,7 @@ package com.alivos.api.service;
 
 import com.alivos.api.dto.AuthUserDto;
 import com.alivos.api.dto.LoginResponse;
+import com.alivos.api.entity.Role;
 import com.alivos.api.entity.User;
 import com.alivos.api.entity.UserStatus;
 import com.alivos.api.exception.ApiException;
@@ -10,6 +11,7 @@ import com.alivos.api.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +20,25 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+
+    @Transactional
+    public LoginResponse register(String name, String email, String password) {
+        String normalizedEmail = email.toLowerCase().trim();
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw ApiException.conflict("Ya existe una cuenta con ese correo");
+        }
+
+        User user = new User();
+        user.setName(name.trim());
+        user.setEmail(normalizedEmail);
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setRole(Role.STUDENT);
+        user.setStatus(UserStatus.ACTIVE);
+        user = userRepository.save(user);
+
+        String token = jwtService.generateToken(user.getId(), user.getRole().name());
+        return new LoginResponse(token, toDto(user));
+    }
 
     public LoginResponse login(String email, String password) {
         User user = userRepository.findByEmail(email.toLowerCase().trim())

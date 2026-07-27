@@ -34,17 +34,9 @@ public class TaskSubmission {
     @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
-    @Column(length = 4000)
-    private String answer;
-
-    private String fileUrl;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TaskSubmissionStatus status = TaskSubmissionStatus.PENDING;
-
-    @Column(length = 4000)
-    private String adminComment;
 
     @Column(nullable = false)
     private Instant deliveredAt;

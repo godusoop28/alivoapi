@@ -58,7 +58,7 @@ public class CourseModuleService {
 
         Map<String, Boolean> noProgress = Map.of();
         List<com.alivos.api.dto.LessonDto> lessons = lessonRepository.findByModuleIdOrderByOrderIndexAsc(module.getId()).stream()
-                .map(lesson -> CourseMapper.toLessonDto(lesson, noProgress))
+                .map(lesson -> CourseMapper.toLessonDto(lesson, noProgress, true))
                 .toList();
         return CourseMapper.toModuleDto(module, lessons);
     }

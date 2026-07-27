@@ -24,5 +24,11 @@ public class CourseDto {
     private Long studentsCount;
     private Boolean enrolled;
     private Integer progress;
+    private Boolean hasAccess;
+    private Double averageRating;
+    private Integer reviewsCount;
+    private List<CourseReviewDto> reviews;
+    private CourseReviewDto myReview;
+    private Boolean canReview;
     private List<ModuleDto> modules;
 }

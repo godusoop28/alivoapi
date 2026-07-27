@@ -11,12 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskSubmissionDto {
-    private String id;
-    private String studentName;
-    private String studentEmail;
-    private String lessonTitle;
-    private String courseTitle;
+public class MyTaskDto {
     private String taskInstructions;
     private String lessonPdfUrl;
     private String lessonImageUrl;

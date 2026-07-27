@@ -3,6 +3,7 @@ package com.alivos.api.controller;
 import com.alivos.api.dto.AuthUserDto;
 import com.alivos.api.dto.LoginRequest;
 import com.alivos.api.dto.LoginResponse;
+import com.alivos.api.dto.RegisterRequest;
 import com.alivos.api.security.SecurityUtils;
 import com.alivos.api.service.AuthService;
 import jakarta.validation.Valid;
@@ -24,6 +25,11 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request.getEmail(), request.getPassword());
+    }
+
+    @PostMapping("/register")
+    public LoginResponse register(@Valid @RequestBody RegisterRequest request) {
+        return authService.register(request.getName(), request.getEmail(), request.getPassword());
     }
 
     @GetMapping("/me")

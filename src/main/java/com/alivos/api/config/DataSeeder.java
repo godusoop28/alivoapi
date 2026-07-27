@@ -16,6 +16,7 @@ import com.alivos.api.entity.PurchaseMethod;
 import com.alivos.api.entity.PurchaseStatus;
 import com.alivos.api.entity.Role;
 import com.alivos.api.entity.Settings;
+import com.alivos.api.entity.TaskComment;
 import com.alivos.api.entity.TaskSubmission;
 import com.alivos.api.entity.TaskSubmissionStatus;
 import com.alivos.api.entity.User;
@@ -28,6 +29,7 @@ import com.alivos.api.repository.LessonRepository;
 import com.alivos.api.repository.ManualAccessRepository;
 import com.alivos.api.repository.PurchaseRepository;
 import com.alivos.api.repository.SettingsRepository;
+import com.alivos.api.repository.TaskCommentRepository;
 import com.alivos.api.repository.TaskSubmissionRepository;
 import com.alivos.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +75,7 @@ public class DataSeeder implements ApplicationRunner {
     private final LessonProgressRepository lessonProgressRepository;
     private final PurchaseRepository purchaseRepository;
     private final TaskSubmissionRepository taskSubmissionRepository;
+    private final TaskCommentRepository taskCommentRepository;
     private final ManualAccessRepository manualAccessRepository;
     private final SettingsRepository settingsRepository;
     private final PasswordEncoder passwordEncoder;
@@ -407,6 +410,7 @@ public class DataSeeder implements ApplicationRunner {
                 .findFirst();
 
         modulo2Actividades.ifPresent(lesson -> {
+            boolean isNewTask = taskSubmissionRepository.findFirstByUserIdAndLessonId(cliente.getId(), lesson.getId()).isEmpty();
             TaskSubmission task = taskSubmissionRepository.findFirstByUserIdAndLessonId(cliente.getId(), lesson.getId())
                     .orElseGet(() -> {
                         TaskSubmission t = new TaskSubmission();
@@ -414,9 +418,15 @@ public class DataSeeder implements ApplicationRunner {
                         t.setLesson(lesson);
                         return t;
                     });
-            task.setAnswer("Hicimos los ejercicios de control postural durante 3 días. Al principio mi bebé estaba inquieto, pero fue relajándose con cada sesión.");
             task.setStatus(TaskSubmissionStatus.DELIVERED);
-            taskSubmissionRepository.save(task);
+            task = taskSubmissionRepository.save(task);
+            if (isNewTask) {
+                TaskComment comment = new TaskComment();
+                comment.setTaskSubmission(task);
+                comment.setAuthor(cliente);
+                comment.setText("Hicimos los ejercicios de control postural durante 3 días. Al principio mi bebé estaba inquieto, pero fue relajándose con cada sesión.");
+                taskCommentRepository.save(comment);
+            }
         });
 
         boolean hasDemoPurchase = purchaseRepository.findByUserIdOrderByCreatedAtDesc(cliente.getId()).stream()

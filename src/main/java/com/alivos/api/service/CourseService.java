@@ -2,10 +2,12 @@ package com.alivos.api.service;
 
 import com.alivos.api.dto.CourseDto;
 import com.alivos.api.dto.CourseRequest;
+import com.alivos.api.dto.CourseReviewDto;
 import com.alivos.api.dto.LessonDto;
 import com.alivos.api.dto.ModuleDto;
 import com.alivos.api.entity.Course;
 import com.alivos.api.entity.CourseModule;
+import com.alivos.api.entity.CourseReview;
 import com.alivos.api.entity.CourseStatus;
 import com.alivos.api.entity.Enrollment;
 import com.alivos.api.entity.EnrollmentStatus;
@@ -14,6 +16,7 @@ import com.alivos.api.entity.LessonProgress;
 import com.alivos.api.exception.ApiException;
 import com.alivos.api.repository.CourseModuleRepository;
 import com.alivos.api.repository.CourseRepository;
+import com.alivos.api.repository.CourseReviewRepository;
 import com.alivos.api.repository.EnrollmentRepository;
 import com.alivos.api.repository.LessonProgressRepository;
 import com.alivos.api.repository.LessonRepository;
@@ -33,11 +36,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseService {
 
+    private static final int MAX_REVIEWS_RETURNED = 20;
+
     private final CourseRepository courseRepository;
     private final CourseModuleRepository moduleRepository;
     private final LessonRepository lessonRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final LessonProgressRepository lessonProgressRepository;
+    private final CourseReviewRepository courseReviewRepository;
 
     @Transactional(readOnly = true)
     public List<CourseDto> listPublicCourses(String userId) {
@@ -45,7 +51,7 @@ public class CourseService {
         Map<String, Enrollment> enrollmentByCourseId = activeEnrollmentsByCourseId(userId);
 
         return courses.stream()
-                .map(course -> toDto(course, userId, enrollmentByCourseId.get(course.getId())))
+                .map(course -> toDto(course, userId, enrollmentByCourseId.get(course.getId()), false))
                 .collect(Collectors.toList());
     }
 
@@ -65,21 +71,21 @@ public class CourseService {
             }
         }
 
-        return toDto(course, userId, enrollment);
+        return toDto(course, userId, enrollment, false);
     }
 
     @Transactional(readOnly = true)
     public List<CourseDto> listMyCourses(String userId) {
         List<Enrollment> enrollments = enrollmentRepository.findByUserIdAndStatus(userId, EnrollmentStatus.ACTIVE);
         return enrollments.stream()
-                .map(e -> toDto(e.getCourse(), userId, e))
+                .map(e -> toDto(e.getCourse(), userId, e, false))
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<CourseDto> listAdminCourses() {
         return courseRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(course -> toDto(course, null, null))
+                .map(course -> toDto(course, null, null, true))
                 .collect(Collectors.toList());
     }
 
@@ -107,7 +113,7 @@ public class CourseService {
         course.setStatus(input.getStatus() != null ? input.getStatus() : CourseStatus.DRAFT);
 
         course = courseRepository.save(course);
-        return toDto(course, null, null);
+        return toDto(course, null, null, true);
     }
 
     @Transactional
@@ -126,7 +132,7 @@ public class CourseService {
         if (input.getStatus() != null) course.setStatus(input.getStatus());
 
         course = courseRepository.save(course);
-        return toDto(course, null, null);
+        return toDto(course, null, null, true);
     }
 
     @Transactional
@@ -145,8 +151,9 @@ public class CourseService {
                 .collect(Collectors.toMap(e -> e.getCourse().getId(), e -> e));
     }
 
-    private CourseDto toDto(Course course, String userId, Enrollment enrollment) {
+    private CourseDto toDto(Course course, String userId, Enrollment enrollment, boolean forceAccess) {
         long studentsCount = enrollmentRepository.countByCourseIdAndStatus(course.getId(), EnrollmentStatus.ACTIVE);
+        boolean hasAccess = forceAccess || enrollment != null;
 
         Map<String, Boolean> progressByLessonId = new HashMap<>();
         if (userId != null) {
@@ -158,8 +165,17 @@ public class CourseService {
 
         List<ModuleDto> modules = moduleRepository.findByCourseIdOrderByOrderIndexAsc(course.getId()).stream()
                 .filter(CourseModule::getVisible)
-                .map(module -> toModuleDto(module, progressByLessonId))
+                .map(module -> toModuleDto(module, progressByLessonId, hasAccess))
                 .collect(Collectors.toList());
+
+        List<CourseReview> reviews = courseReviewRepository.findByCourseIdOrderByCreatedAtDesc(course.getId());
+        Double averageRating = courseReviewRepository.averageRatingForCourse(course.getId());
+        CourseReviewDto myReview = userId == null ? null : reviews.stream()
+                .filter(r -> r.getUser().getId().equals(userId))
+                .findFirst()
+                .map(this::toReviewDto)
+                .orElse(null);
+        boolean canReview = enrollment != null && enrollment.getProgress() != null && enrollment.getProgress() >= 100;
 
         CourseDto dto = new CourseDto();
         dto.setId(course.getId());
@@ -175,14 +191,30 @@ public class CourseService {
         dto.setStudentsCount(studentsCount);
         dto.setEnrolled(enrollment != null);
         dto.setProgress(enrollment != null ? enrollment.getProgress() : 0);
+        dto.setHasAccess(hasAccess);
+        dto.setAverageRating(averageRating);
+        dto.setReviewsCount(reviews.size());
+        dto.setReviews(reviews.stream().limit(MAX_REVIEWS_RETURNED).map(this::toReviewDto).toList());
+        dto.setMyReview(myReview);
+        dto.setCanReview(canReview);
         dto.setModules(modules);
         return dto;
     }
 
-    private ModuleDto toModuleDto(CourseModule module, Map<String, Boolean> progressByLessonId) {
+    private CourseReviewDto toReviewDto(CourseReview review) {
+        return new CourseReviewDto(
+                review.getId(),
+                review.getUser().getName(),
+                review.getRating(),
+                review.getComment(),
+                review.getCreatedAt()
+        );
+    }
+
+    private ModuleDto toModuleDto(CourseModule module, Map<String, Boolean> progressByLessonId, boolean hasAccess) {
         List<LessonDto> lessons = lessonRepository.findByModuleIdOrderByOrderIndexAsc(module.getId()).stream()
                 .filter(Lesson::getVisible)
-                .map(lesson -> CourseMapper.toLessonDto(lesson, progressByLessonId))
+                .map(lesson -> CourseMapper.toLessonDto(lesson, progressByLessonId, hasAccess))
                 .collect(Collectors.toList());
 
         return CourseMapper.toModuleDto(module, lessons);

@@ -28,4 +28,5 @@ public class LessonDto {
     private String pdfUrl;
     private String assetType;
     private Boolean completed;
+    private Boolean locked;
 }

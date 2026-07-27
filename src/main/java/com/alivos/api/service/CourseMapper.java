@@ -13,27 +13,29 @@ public final class CourseMapper {
     private CourseMapper() {
     }
 
-    public static LessonDto toLessonDto(Lesson lesson, Map<String, Boolean> progressByLessonId) {
+    public static LessonDto toLessonDto(Lesson lesson, Map<String, Boolean> progressByLessonId, boolean hasAccess) {
+        boolean locked = !hasAccess;
         return new LessonDto(
                 lesson.getId(),
                 lesson.getTitle(),
                 lesson.getType(),
-                lesson.getDescription(),
+                locked ? null : lesson.getDescription(),
                 lesson.getOrderIndex(),
                 lesson.getDurationMinutes(),
                 lesson.getVisible(),
                 lesson.getHasMaterial(),
-                lesson.getMaterialUrl(),
+                locked ? null : lesson.getMaterialUrl(),
                 lesson.getHasTask(),
-                lesson.getTaskDescription(),
-                lesson.getVimeoId(),
-                lesson.getVimeoUrl(),
-                lesson.getVimeoEmbedUrl(),
+                locked ? null : lesson.getTaskDescription(),
+                locked ? null : lesson.getVimeoId(),
+                locked ? null : lesson.getVimeoUrl(),
+                locked ? null : lesson.getVimeoEmbedUrl(),
                 lesson.getVimeoThumbnail(),
                 lesson.getImageUrl(),
-                lesson.getPdfUrl(),
+                locked ? null : lesson.getPdfUrl(),
                 lesson.getAssetType(),
-                progressByLessonId.getOrDefault(lesson.getId(), false)
+                progressByLessonId.getOrDefault(lesson.getId(), false),
+                locked
         );
     }
 
