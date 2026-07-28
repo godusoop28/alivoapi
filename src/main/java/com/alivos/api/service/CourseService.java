@@ -13,6 +13,7 @@ import com.alivos.api.entity.Enrollment;
 import com.alivos.api.entity.EnrollmentStatus;
 import com.alivos.api.entity.Lesson;
 import com.alivos.api.entity.LessonProgress;
+import com.alivos.api.dto.VimeoResolvedDto;
 import com.alivos.api.exception.ApiException;
 import com.alivos.api.repository.CourseModuleRepository;
 import com.alivos.api.repository.CourseRepository;
@@ -44,6 +45,7 @@ public class CourseService {
     private final EnrollmentRepository enrollmentRepository;
     private final LessonProgressRepository lessonProgressRepository;
     private final CourseReviewRepository courseReviewRepository;
+    private final VimeoService vimeoService;
 
     @Transactional(readOnly = true)
     public List<CourseDto> listPublicCourses(String userId) {
@@ -111,6 +113,7 @@ public class CourseService {
         course.setCoverImage(input.getCoverImage());
         course.setBannerImage(input.getBannerImage());
         course.setStatus(input.getStatus() != null ? input.getStatus() : CourseStatus.DRAFT);
+        applyPreviewVideo(course, input.getPreviewVimeoUrl());
 
         course = courseRepository.save(course);
         return toDto(course, null, null, true);
@@ -130,9 +133,23 @@ public class CourseService {
         if (input.getCoverImage() != null) course.setCoverImage(input.getCoverImage());
         if (input.getBannerImage() != null) course.setBannerImage(input.getBannerImage());
         if (input.getStatus() != null) course.setStatus(input.getStatus());
+        if (input.getPreviewVimeoUrl() != null) applyPreviewVideo(course, input.getPreviewVimeoUrl());
 
         course = courseRepository.save(course);
         return toDto(course, null, null, true);
+    }
+
+    private void applyPreviewVideo(Course course, String previewVimeoUrl) {
+        if (previewVimeoUrl == null || previewVimeoUrl.isBlank()) {
+            course.setPreviewVimeoUrl(null);
+            course.setPreviewVimeoEmbedUrl(null);
+            course.setPreviewVimeoThumbnail(null);
+            return;
+        }
+        VimeoResolvedDto resolved = vimeoService.resolve(previewVimeoUrl);
+        course.setPreviewVimeoUrl(previewVimeoUrl);
+        course.setPreviewVimeoEmbedUrl(resolved.getEmbedUrl());
+        course.setPreviewVimeoThumbnail(resolved.getThumbnailUrl());
     }
 
     @Transactional
@@ -187,6 +204,9 @@ public class CourseService {
         dto.setPrice(course.getPrice());
         dto.setImageUrl(course.getCoverImage());
         dto.setBannerImage(course.getBannerImage());
+        dto.setPreviewVimeoUrl(course.getPreviewVimeoUrl());
+        dto.setPreviewVimeoEmbedUrl(course.getPreviewVimeoEmbedUrl());
+        dto.setPreviewVimeoThumbnail(course.getPreviewVimeoThumbnail());
         dto.setStatus(course.getStatus());
         dto.setStudentsCount(studentsCount);
         dto.setEnrolled(enrollment != null);

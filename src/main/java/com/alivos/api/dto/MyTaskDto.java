@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyTaskDto {
+    private Boolean lessonHasTask;
     private String taskInstructions;
     private String lessonPdfUrl;
     private String lessonImageUrl;

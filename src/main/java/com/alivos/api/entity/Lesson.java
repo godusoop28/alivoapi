@@ -58,4 +58,7 @@ public class Lesson extends BaseEntity {
     private String imageUrl;
     private String pdfUrl;
     private String assetType;
+
+    @Column(columnDefinition = "TEXT")
+    private String formSchema;
 }

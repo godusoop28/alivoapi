@@ -13,5 +13,6 @@ public class CourseRequest {
     private Integer price;
     private String coverImage;
     private String bannerImage;
+    private String previewVimeoUrl;
     private CourseStatus status;
 }

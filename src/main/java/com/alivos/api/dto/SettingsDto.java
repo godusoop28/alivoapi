@@ -15,4 +15,9 @@ public class SettingsDto {
     private String facebook;
     private String website;
     private String brandName;
+    private Boolean advisoryEnabled;
+    private Integer advisorySlotMinutes;
+    private String advisoryDays;
+    private String advisoryStartTime;
+    private String advisoryEndTime;
 }

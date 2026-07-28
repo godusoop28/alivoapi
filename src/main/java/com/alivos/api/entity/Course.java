@@ -36,6 +36,10 @@ public class Course extends BaseEntity {
 
     private String bannerImage;
 
+    private String previewVimeoUrl;
+    private String previewVimeoEmbedUrl;
+    private String previewVimeoThumbnail;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CourseStatus status = CourseStatus.DRAFT;

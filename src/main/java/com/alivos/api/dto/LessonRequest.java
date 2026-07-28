@@ -19,4 +19,5 @@ public class LessonRequest {
     private String imageUrl;
     private String pdfUrl;
     private String assetType;
+    private String formSchema;
 }

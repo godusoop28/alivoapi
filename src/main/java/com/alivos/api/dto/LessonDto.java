@@ -27,6 +27,7 @@ public class LessonDto {
     private String imageUrl;
     private String pdfUrl;
     private String assetType;
+    private String formSchema;
     private Boolean completed;
     private Boolean locked;
 }

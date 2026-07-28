@@ -34,6 +34,7 @@ public final class CourseMapper {
                 lesson.getImageUrl(),
                 locked ? null : lesson.getPdfUrl(),
                 lesson.getAssetType(),
+                locked ? null : lesson.getFormSchema(),
                 progressByLessonId.getOrDefault(lesson.getId(), false),
                 locked
         );

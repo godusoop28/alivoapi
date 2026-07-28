@@ -20,6 +20,9 @@ public class CourseDto {
     private Integer price;
     private String imageUrl;
     private String bannerImage;
+    private String previewVimeoUrl;
+    private String previewVimeoEmbedUrl;
+    private String previewVimeoThumbnail;
     private CourseStatus status;
     private Long studentsCount;
     private Boolean enrolled;

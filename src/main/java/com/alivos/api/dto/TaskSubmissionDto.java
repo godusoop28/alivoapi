@@ -17,6 +17,7 @@ public class TaskSubmissionDto {
     private String studentEmail;
     private String lessonTitle;
     private String courseTitle;
+    private Boolean lessonHasTask;
     private String taskInstructions;
     private String lessonPdfUrl;
     private String lessonImageUrl;

@@ -74,18 +74,16 @@ public class TaskSubmissionService {
     public MyTaskDto getMyTask(String userId, String lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> ApiException.notFound("Lección no encontrada"));
-        if (!Boolean.TRUE.equals(lesson.getHasTask())) {
-            throw ApiException.badRequest("Esta lección no tiene una tarea asociada");
-        }
 
         TaskSubmission task = taskSubmissionRepository.findFirstByUserIdAndLessonId(userId, lessonId).orElse(null);
         if (task == null) {
-            return new MyTaskDto(lesson.getTaskDescription(), lesson.getPdfUrl(), lesson.getImageUrl(),
+            return new MyTaskDto(lesson.getHasTask(), lesson.getTaskDescription(), lesson.getPdfUrl(), lesson.getImageUrl(),
                     null, List.of(), null, null);
         }
 
         List<TaskComment> comments = taskCommentRepository.findByTaskSubmissionIdOrderByCreatedAtAsc(task.getId());
         return new MyTaskDto(
+                lesson.getHasTask(),
                 lesson.getTaskDescription(),
                 lesson.getPdfUrl(),
                 lesson.getImageUrl(),
@@ -104,9 +102,6 @@ public class TaskSubmissionService {
 
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> ApiException.notFound("Lección no encontrada"));
-        if (!Boolean.TRUE.equals(lesson.getHasTask())) {
-            throw ApiException.badRequest("Esta lección no tiene una tarea asociada");
-        }
 
         TaskSubmission task = taskSubmissionRepository.findFirstByUserIdAndLessonId(userId, lessonId)
                 .orElseGet(() -> {
@@ -129,6 +124,7 @@ public class TaskSubmissionService {
 
         List<TaskComment> comments = taskCommentRepository.findByTaskSubmissionIdOrderByCreatedAtAsc(task.getId());
         return new MyTaskDto(
+                lesson.getHasTask(),
                 lesson.getTaskDescription(),
                 lesson.getPdfUrl(),
                 lesson.getImageUrl(),
@@ -168,6 +164,7 @@ public class TaskSubmissionService {
                 t.getUser().getEmail(),
                 t.getLesson().getTitle(),
                 t.getLesson().getModule().getCourse().getTitle(),
+                t.getLesson().getHasTask(),
                 t.getLesson().getTaskDescription(),
                 t.getLesson().getPdfUrl(),
                 t.getLesson().getImageUrl(),

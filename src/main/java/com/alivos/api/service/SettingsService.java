@@ -17,7 +17,8 @@ public class SettingsService {
     public SettingsDto getSettings() {
         Settings settings = settingsRepository.findById(Settings.SINGLETON_ID).orElse(null);
         if (settings == null) {
-            return new SettingsDto(null, null, null, null, null, null, "ALIVOS Medicina de Rehabilitación");
+            return new SettingsDto(null, null, null, null, null, null, "ALIVOS Medicina de Rehabilitación",
+                    true, 30, "1,2,3,4,5", "09:00", "18:00");
         }
         return toDto(settings);
     }
@@ -37,6 +38,11 @@ public class SettingsService {
         if (input.getFacebook() != null) settings.setFacebook(input.getFacebook());
         if (input.getWebsite() != null) settings.setWebsite(input.getWebsite());
         if (input.getBrandName() != null) settings.setBrandName(input.getBrandName());
+        if (input.getAdvisoryEnabled() != null) settings.setAdvisoryEnabled(input.getAdvisoryEnabled());
+        if (input.getAdvisorySlotMinutes() != null) settings.setAdvisorySlotMinutes(input.getAdvisorySlotMinutes());
+        if (input.getAdvisoryDays() != null) settings.setAdvisoryDays(input.getAdvisoryDays());
+        if (input.getAdvisoryStartTime() != null) settings.setAdvisoryStartTime(input.getAdvisoryStartTime());
+        if (input.getAdvisoryEndTime() != null) settings.setAdvisoryEndTime(input.getAdvisoryEndTime());
 
         settings = settingsRepository.save(settings);
         return toDto(settings);
@@ -45,7 +51,9 @@ public class SettingsService {
     private SettingsDto toDto(Settings settings) {
         return new SettingsDto(
                 settings.getWhatsapp(), settings.getEmail(), settings.getAppointmentUrl(),
-                settings.getInstagram(), settings.getFacebook(), settings.getWebsite(), settings.getBrandName()
+                settings.getInstagram(), settings.getFacebook(), settings.getWebsite(), settings.getBrandName(),
+                settings.getAdvisoryEnabled(), settings.getAdvisorySlotMinutes(), settings.getAdvisoryDays(),
+                settings.getAdvisoryStartTime(), settings.getAdvisoryEndTime()
         );
     }
 }

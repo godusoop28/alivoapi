@@ -12,6 +12,7 @@ import com.alivos.api.entity.TaskSubmission;
 import com.alivos.api.exception.ApiException;
 import com.alivos.api.repository.CourseModuleRepository;
 import com.alivos.api.repository.EnrollmentRepository;
+import com.alivos.api.repository.FormResponseRepository;
 import com.alivos.api.repository.LessonProgressRepository;
 import com.alivos.api.repository.LessonRepository;
 import com.alivos.api.repository.TaskCommentRepository;
@@ -34,6 +35,7 @@ public class LessonService {
     private final LessonProgressRepository lessonProgressRepository;
     private final TaskSubmissionRepository taskSubmissionRepository;
     private final TaskCommentRepository taskCommentRepository;
+    private final FormResponseRepository formResponseRepository;
     private final UserRepository userRepository;
     private final VimeoService vimeoService;
 
@@ -59,6 +61,7 @@ public class LessonService {
         lesson.setImageUrl(input.getImageUrl());
         lesson.setPdfUrl(input.getPdfUrl());
         lesson.setAssetType(input.getAssetType());
+        lesson.setFormSchema(input.getFormSchema());
 
         applyVimeoFields(lesson, input.getVimeoUrl());
 
@@ -84,6 +87,7 @@ public class LessonService {
         if (input.getImageUrl() != null) lesson.setImageUrl(input.getImageUrl());
         if (input.getPdfUrl() != null) lesson.setPdfUrl(input.getPdfUrl());
         if (input.getAssetType() != null) lesson.setAssetType(input.getAssetType());
+        if (input.getFormSchema() != null) lesson.setFormSchema(input.getFormSchema());
 
         if (input.getVimeoUrl() != null) {
             applyVimeoFields(lesson, input.getVimeoUrl());
@@ -106,6 +110,7 @@ public class LessonService {
             taskSubmissionRepository.deleteAll(submissions);
         }
         lessonProgressRepository.deleteByLessonId(id);
+        formResponseRepository.deleteByLessonId(id);
 
         lessonRepository.deleteById(id);
     }

@@ -21,4 +21,11 @@ public class Settings extends BaseEntity {
     private String facebook;
     private String website;
     private String brandName;
+
+    private Boolean advisoryEnabled = true;
+    private Integer advisorySlotMinutes = 30;
+    /** Comma-separated ISO day-of-week numbers, 1 (Monday) to 7 (Sunday). */
+    private String advisoryDays = "1,2,3,4,5";
+    private String advisoryStartTime = "09:00";
+    private String advisoryEndTime = "18:00";
 }

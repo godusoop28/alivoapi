@@ -5,5 +5,6 @@ public enum LessonType {
     TEXT,
     PDF,
     TASK,
-    EVALUATION
+    EVALUATION,
+    FORM
 }
