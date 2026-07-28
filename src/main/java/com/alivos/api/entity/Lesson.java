@@ -25,7 +25,7 @@ public class Lesson extends BaseEntity {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, columnDefinition = "varchar(20)")
     private LessonType type = LessonType.VIDEO;
 
     @Column(length = 4000)
