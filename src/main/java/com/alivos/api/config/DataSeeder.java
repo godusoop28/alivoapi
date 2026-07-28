@@ -130,17 +130,19 @@ public class DataSeeder implements ApplicationRunner {
     private Course upsertCourseShell(String title, String slug, String ageRange, int price,
                                       String shortDescription, String longDescription,
                                       String coverImage, String bannerImage) {
-        Course course = courseRepository.findBySlug(slug).orElseGet(Course::new);
-        course.setTitle(title);
-        course.setSlug(slug);
-        course.setAgeRange(ageRange);
-        course.setPrice(price);
-        course.setShortDescription(shortDescription);
-        course.setLongDescription(longDescription);
-        course.setCoverImage(coverImage);
-        course.setBannerImage(bannerImage);
-        course.setStatus(CourseStatus.PUBLISHED);
-        return courseRepository.save(course);
+        return courseRepository.findBySlug(slug).orElseGet(() -> {
+            Course course = new Course();
+            course.setTitle(title);
+            course.setSlug(slug);
+            course.setAgeRange(ageRange);
+            course.setPrice(price);
+            course.setShortDescription(shortDescription);
+            course.setLongDescription(longDescription);
+            course.setCoverImage(coverImage);
+            course.setBannerImage(bannerImage);
+            course.setStatus(CourseStatus.PUBLISHED);
+            return courseRepository.save(course);
+        });
     }
 
     private boolean hasContent(Course course) {
@@ -523,12 +525,12 @@ public class DataSeeder implements ApplicationRunner {
     // ----- Settings -----
 
     private void seedSettings() {
-        Settings settings = settingsRepository.findById(Settings.SINGLETON_ID).orElseGet(() -> {
-            Settings s = new Settings();
-            s.setId(Settings.SINGLETON_ID);
-            return s;
-        });
-        settings.setWhatsapp("5215528132020");
+        if (settingsRepository.existsById(Settings.SINGLETON_ID)) {
+            return;
+        }
+        Settings settings = new Settings();
+        settings.setId(Settings.SINGLETON_ID);
+        settings.setWhatsapp("5213329421890");
         settings.setEmail("info@alivosestimulacion.com");
         settings.setInstagram("@alivosestimulacion");
         settings.setFacebook("alivosestimulacion");
