@@ -1,6 +1,8 @@
 package com.alivos.api.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Map<String, Object>> handleApiException(ApiException ex) {
@@ -40,8 +44,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("error", "Ya existe un registro con ese valor único"));
+        log.warn("Data integrity violation", ex);
+        String rootMessage = rootMessage(ex);
+        boolean looksLikeDuplicate = rootMessage != null
+                && (rootMessage.toLowerCase().contains("duplicate") || rootMessage.toLowerCase().contains("unique"));
+        String message = looksLikeDuplicate
+                ? "Ya existe un registro con ese valor único"
+                : "No se pudo guardar el cambio. Verifica los datos e intenta de nuevo.";
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", message));
+    }
+
+    private static String rootMessage(Throwable ex) {
+        Throwable current = ex;
+        while (current.getCause() != null && current.getCause() != current) {
+            current = current.getCause();
+        }
+        return current.getMessage();
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
