@@ -62,6 +62,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/courses", "/api/courses/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/settings").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/advisory/availability").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/advisory/professionals").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/testimonials/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/mercadopago/webhook").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/vimeo/resolve").hasRole("ADMIN")

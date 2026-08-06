@@ -22,8 +22,16 @@ public class Purchase extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
+    @JoinColumn(name = "course_id")
     private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private PurchaseType type = PurchaseType.COURSE;
 
     @Column(nullable = false)
     private Integer amount;
@@ -37,4 +45,6 @@ public class Purchase extends BaseEntity {
     private PurchaseMethod method = PurchaseMethod.MERCADO_PAGO;
 
     private String paymentId;
+
+    private String preferenceId;
 }

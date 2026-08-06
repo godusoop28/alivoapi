@@ -1,9 +1,11 @@
 package com.alivos.api.service;
 
+import com.alivos.api.dto.AdminCourseReviewDto;
 import com.alivos.api.dto.CourseReviewDto;
 import com.alivos.api.dto.CourseReviewRequest;
 import com.alivos.api.entity.Course;
 import com.alivos.api.entity.CourseReview;
+import com.alivos.api.entity.CourseReviewStatus;
 import com.alivos.api.entity.Enrollment;
 import com.alivos.api.entity.EnrollmentStatus;
 import com.alivos.api.exception.ApiException;
@@ -14,6 +16,8 @@ import com.alivos.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +52,29 @@ public class ReviewService {
         review = courseReviewRepository.save(review);
 
         return toDto(review);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminCourseReviewDto> listAllForAdmin() {
+        return courseReviewRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(r -> new AdminCourseReviewDto(
+                        r.getId(),
+                        r.getCourse().getTitle(),
+                        r.getUser().getName(),
+                        r.getRating(),
+                        r.getComment(),
+                        r.getStatus(),
+                        r.getCreatedAt()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public void updateStatus(String id, CourseReviewStatus status) {
+        CourseReview review = courseReviewRepository.findById(id)
+                .orElseThrow(() -> ApiException.notFound("Reseña no encontrada"));
+        review.setStatus(status);
+        courseReviewRepository.save(review);
     }
 
     public CourseReviewDto toDto(CourseReview review) {

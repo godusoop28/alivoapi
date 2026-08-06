@@ -1,9 +1,12 @@
 package com.alivos.api.controller;
 
+import com.alivos.api.dto.AppointmentBookingDto;
 import com.alivos.api.dto.AppointmentDto;
 import com.alivos.api.dto.AppointmentRequest;
+import com.alivos.api.dto.ProfessionalDto;
 import com.alivos.api.security.SecurityUtils;
 import com.alivos.api.service.AppointmentService;
+import com.alivos.api.service.ProfessionalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,16 +28,23 @@ import java.util.Map;
 public class AdvisoryController {
 
     private final AppointmentService appointmentService;
+    private final ProfessionalService professionalService;
+
+    @GetMapping("/professionals")
+    public Map<String, List<ProfessionalDto>> listProfessionals() {
+        return Map.of("professionals", professionalService.listActive());
+    }
 
     @GetMapping("/availability")
     public Map<String, List<String>> getAvailability(
+            @RequestParam String professionalId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        return Map.of("slots", appointmentService.getAvailability(date));
+        return Map.of("slots", appointmentService.getAvailability(professionalId, date));
     }
 
     @PostMapping("/appointments")
-    public AppointmentDto createAppointment(@Valid @RequestBody AppointmentRequest request, Authentication authentication) {
+    public AppointmentBookingDto createAppointment(@Valid @RequestBody AppointmentRequest request, Authentication authentication) {
         String userId = SecurityUtils.requireUserId(authentication);
         return appointmentService.createAppointment(userId, request);
     }

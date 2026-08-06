@@ -185,11 +185,11 @@ public class CourseService {
                 .map(module -> toModuleDto(module, progressByLessonId, hasAccess))
                 .collect(Collectors.toList());
 
-        List<CourseReview> reviews = courseReviewRepository.findByCourseIdOrderByCreatedAtDesc(course.getId());
+        List<CourseReview> reviews = courseReviewRepository
+                .findByCourseIdAndStatusOrderByCreatedAtDesc(course.getId(), com.alivos.api.entity.CourseReviewStatus.APPROVED);
         Double averageRating = courseReviewRepository.averageRatingForCourse(course.getId());
-        CourseReviewDto myReview = userId == null ? null : reviews.stream()
-                .filter(r -> r.getUser().getId().equals(userId))
-                .findFirst()
+        CourseReviewDto myReview = userId == null ? null : courseReviewRepository
+                .findByUserIdAndCourseId(userId, course.getId())
                 .map(this::toReviewDto)
                 .orElse(null);
         boolean canReview = enrollment != null && enrollment.getProgress() != null && enrollment.getProgress() >= 100;
