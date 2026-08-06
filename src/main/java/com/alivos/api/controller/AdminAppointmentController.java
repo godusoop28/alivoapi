@@ -1,5 +1,6 @@
 package com.alivos.api.controller;
 
+import com.alivos.api.dto.AdminAppointmentRequest;
 import com.alivos.api.dto.AppointmentDto;
 import com.alivos.api.dto.AppointmentRescheduleRequest;
 import com.alivos.api.dto.AppointmentStatusRequest;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +30,11 @@ public class AdminAppointmentController {
     @GetMapping
     public Map<String, List<AppointmentDto>> listAppointments() {
         return Map.of("appointments", appointmentService.listAll());
+    }
+
+    @PostMapping
+    public Map<String, AppointmentDto> createAppointment(@Valid @RequestBody AdminAppointmentRequest request) {
+        return Map.of("appointment", appointmentService.createByAdmin(request));
     }
 
     @PatchMapping("/{id}/status")

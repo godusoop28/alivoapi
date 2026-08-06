@@ -24,6 +24,10 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "professional_id")
+    private Professional professional;
+
     @Column(nullable = false)
     private LocalDate date;
 
@@ -39,4 +43,10 @@ public class Appointment extends BaseEntity {
 
     @Column(length = 2000)
     private String adminNote;
+
+    private Integer amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private BookingSource bookingSource = BookingSource.USER;
 }

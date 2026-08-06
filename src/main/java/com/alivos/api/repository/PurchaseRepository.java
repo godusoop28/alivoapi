@@ -12,4 +12,5 @@ public interface PurchaseRepository extends JpaRepository<Purchase, String> {
     List<Purchase> findByUserIdOrderByCreatedAtDesc(String userId);
     List<Purchase> findByStatusOrderByCreatedAtDesc(PurchaseStatus status);
     Optional<Purchase> findFirstByUserIdAndCourseIdAndStatus(String userId, String courseId, PurchaseStatus status);
+    Optional<Purchase> findFirstByAppointmentIdOrderByCreatedAtDesc(String appointmentId);
 }

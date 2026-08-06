@@ -11,4 +11,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     List<Appointment> findAllByOrderByDateDescTimeDesc();
     List<Appointment> findByUserIdOrderByDateDescTimeDesc(String userId);
     List<Appointment> findByDateAndStatusIn(LocalDate date, List<AppointmentStatus> statuses);
+    List<Appointment> findByProfessionalIdAndDateAndStatusIn(String professionalId, LocalDate date, List<AppointmentStatus> statuses);
 }

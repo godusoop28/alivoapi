@@ -16,6 +16,7 @@ public class SettingsDto {
     private String website;
     private String brandName;
     private Boolean advisoryEnabled;
+    private Integer advisoryPrice;
     private Integer advisorySlotMinutes;
     private String advisoryDays;
     private String advisoryStartTime;

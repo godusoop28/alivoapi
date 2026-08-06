@@ -8,31 +8,34 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
-@Table(name = "course_reviews", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "course_id"}))
+@Table(name = "appointment_accesses")
 @Getter
 @Setter
-public class CourseReview extends BaseEntity {
+public class AppointmentAccess extends BaseEntity {
+
+    @Column(nullable = false)
+    private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
-
-    @Column(nullable = false)
-    private Integer rating;
+    @JoinColumn(name = "granted_by_id", nullable = false)
+    private User grantedBy;
 
     @Column(length = 2000)
-    private String comment;
+    private String reason;
+
+    private Instant expiresAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private CourseReviewStatus status = CourseReviewStatus.APPROVED;
+    @Column(nullable = false, length = 20)
+    private ManualAccessStatus status = ManualAccessStatus.ACTIVE;
 }

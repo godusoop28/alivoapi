@@ -41,6 +41,8 @@ app:
     api-secret: ${CLOUDINARY_API_SECRET:}
   mercadopago:
     access-token: ${MERCADO_PAGO_ACCESS_TOKEN:}
+    webhook-secret: ${MERCADO_PAGO_WEBHOOK_SECRET:}
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
   seed:
     enabled: ${SEED_ON_STARTUP:true}
 
