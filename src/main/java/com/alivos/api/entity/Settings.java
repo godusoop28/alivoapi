@@ -33,6 +33,6 @@ public class Settings extends BaseEntity {
     /** Shown before the login modal — Vimeo/Drive/direct video URL. */
     private String presentationVideoUrl;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean not null default false")
     private Boolean presentationVideoEnabled = false;
 }

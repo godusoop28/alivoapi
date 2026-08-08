@@ -72,10 +72,10 @@ public class Lesson extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String checklistItems;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean not null default true")
     private Boolean commentsEnabled = true;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean not null default true")
     private Boolean advisoryEnabled = true;
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
