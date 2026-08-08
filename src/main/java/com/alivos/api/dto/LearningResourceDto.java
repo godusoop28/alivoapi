@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,4 +25,5 @@ public class LearningResourceDto {
     private String externalUrl;
     private Boolean visible;
     private Instant createdAt;
+    private List<ResourceAttachmentDto> attachments;
 }

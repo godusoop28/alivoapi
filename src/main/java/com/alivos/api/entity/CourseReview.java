@@ -35,4 +35,10 @@ public class CourseReview extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private CourseReviewStatus status = CourseReviewStatus.APPROVED;
+
+    /** Optional photo/video attached to the review, uploaded to Cloudinary. */
+    private String mediaUrl;
+
+    /** "IMAGE" or "VIDEO". */
+    private String mediaType;
 }

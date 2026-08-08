@@ -227,6 +227,8 @@ public class CourseService {
                 review.getUser().getName(),
                 review.getRating(),
                 review.getComment(),
+                review.getMediaUrl(),
+                review.getMediaType(),
                 review.getCreatedAt()
         );
     }

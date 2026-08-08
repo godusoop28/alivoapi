@@ -29,4 +29,10 @@ public class Settings extends BaseEntity {
     private String advisoryDays = "1,2,3,4,5";
     private String advisoryStartTime = "09:00";
     private String advisoryEndTime = "18:00";
+
+    /** Shown before the login modal — Vimeo/Drive/direct video URL. */
+    private String presentationVideoUrl;
+
+    @Column(nullable = false)
+    private Boolean presentationVideoEnabled = false;
 }

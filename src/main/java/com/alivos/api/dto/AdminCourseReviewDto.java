@@ -16,6 +16,8 @@ public class AdminCourseReviewDto {
     private String studentName;
     private Integer rating;
     private String comment;
+    private String mediaUrl;
+    private String mediaType;
     private CourseReviewStatus status;
     private Instant createdAt;
 }

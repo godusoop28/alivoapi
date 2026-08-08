@@ -21,4 +21,6 @@ public class SettingsDto {
     private String advisoryDays;
     private String advisoryStartTime;
     private String advisoryEndTime;
+    private String presentationVideoUrl;
+    private Boolean presentationVideoEnabled;
 }

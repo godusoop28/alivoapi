@@ -1,9 +1,11 @@
 package com.alivos.api.service;
 
+import com.alivos.api.dto.LessonAttachmentDto;
 import com.alivos.api.dto.LessonDto;
 import com.alivos.api.dto.ModuleDto;
 import com.alivos.api.entity.CourseModule;
 import com.alivos.api.entity.Lesson;
+import com.alivos.api.entity.LessonAttachment;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,9 @@ public final class CourseMapper {
 
     public static LessonDto toLessonDto(Lesson lesson, Map<String, Boolean> progressByLessonId, boolean hasAccess) {
         boolean locked = !hasAccess;
+        List<LessonAttachmentDto> attachments = locked ? null : lesson.getAttachments().stream()
+                .map(CourseMapper::toAttachmentDto)
+                .toList();
         return new LessonDto(
                 lesson.getId(),
                 lesson.getTitle(),
@@ -36,7 +41,24 @@ public final class CourseMapper {
                 lesson.getAssetType(),
                 locked ? null : lesson.getFormSchema(),
                 progressByLessonId.getOrDefault(lesson.getId(), false),
-                locked
+                locked,
+                locked ? null : lesson.getChecklistItems(),
+                lesson.getCommentsEnabled(),
+                lesson.getAdvisoryEnabled(),
+                attachments
+        );
+    }
+
+    public static LessonAttachmentDto toAttachmentDto(LessonAttachment attachment) {
+        return new LessonAttachmentDto(
+                attachment.getId(),
+                attachment.getType() != null ? attachment.getType().name() : null,
+                attachment.getTitle(),
+                attachment.getDescription(),
+                attachment.getFileUrl(),
+                attachment.getExternalUrl(),
+                attachment.getFormSchema(),
+                attachment.getOrderIndex()
         );
     }
 

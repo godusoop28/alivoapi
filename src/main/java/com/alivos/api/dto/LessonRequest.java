@@ -3,6 +3,8 @@ package com.alivos.api.dto;
 import com.alivos.api.entity.LessonType;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class LessonRequest {
     private String title;
@@ -20,4 +22,8 @@ public class LessonRequest {
     private String pdfUrl;
     private String assetType;
     private String formSchema;
+    private String checklistItems;
+    private Boolean commentsEnabled;
+    private Boolean advisoryEnabled;
+    private List<LessonAttachmentRequest> attachments;
 }

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,4 +32,8 @@ public class LessonDto {
     private String formSchema;
     private Boolean completed;
     private Boolean locked;
+    private String checklistItems;
+    private Boolean commentsEnabled;
+    private Boolean advisoryEnabled;
+    private List<LessonAttachmentDto> attachments;
 }

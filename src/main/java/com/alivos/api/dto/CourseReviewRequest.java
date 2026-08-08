@@ -13,4 +13,6 @@ public class CourseReviewRequest {
     private Integer rating;
 
     private String comment;
+    private String mediaUrl;
+    private String mediaType;
 }

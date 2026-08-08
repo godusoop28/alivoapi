@@ -2,8 +2,11 @@ package com.alivos.api.service;
 
 import com.alivos.api.dto.LearningResourceDto;
 import com.alivos.api.dto.LearningResourceRequest;
+import com.alivos.api.dto.ResourceAttachmentDto;
+import com.alivos.api.dto.ResourceAttachmentRequest;
 import com.alivos.api.dto.VimeoResolvedDto;
 import com.alivos.api.entity.LearningResource;
+import com.alivos.api.entity.ResourceAttachment;
 import com.alivos.api.exception.ApiException;
 import com.alivos.api.repository.LearningResourceRepository;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +76,7 @@ public class LearningResourceService {
         if (input.getExternalUrl() != null) resource.setExternalUrl(input.getExternalUrl());
         if (input.getVisible() != null) resource.setVisible(input.getVisible());
         if (input.getOrder() != null) resource.setOrderIndex(input.getOrder());
+        if (input.getAttachments() != null) syncAttachments(resource, input.getAttachments());
         if (input.getVimeoUrl() != null) {
             if (input.getVimeoUrl().isBlank()) {
                 resource.setVimeoUrl(null);
@@ -87,7 +91,26 @@ public class LearningResourceService {
         }
     }
 
+    private void syncAttachments(LearningResource resource, List<ResourceAttachmentRequest> requests) {
+        resource.getAttachments().clear();
+        int order = 0;
+        for (ResourceAttachmentRequest req : requests) {
+            ResourceAttachment attachment = new ResourceAttachment();
+            attachment.setResource(resource);
+            attachment.setTitle(req.getTitle());
+            attachment.setDescription(req.getDescription());
+            attachment.setFileUrl(req.getFileUrl());
+            attachment.setExternalUrl(req.getExternalUrl());
+            attachment.setOrderIndex(req.getOrder() != null ? req.getOrder() : order);
+            resource.getAttachments().add(attachment);
+            order++;
+        }
+    }
+
     private LearningResourceDto toDto(LearningResource r) {
+        List<ResourceAttachmentDto> attachments = r.getAttachments().stream()
+                .map(a -> new ResourceAttachmentDto(a.getId(), a.getTitle(), a.getDescription(), a.getFileUrl(), a.getExternalUrl(), a.getOrderIndex()))
+                .toList();
         return new LearningResourceDto(
                 r.getId(),
                 r.getTitle(),
@@ -101,7 +124,8 @@ public class LearningResourceService {
                 r.getContent(),
                 r.getExternalUrl(),
                 r.getVisible(),
-                r.getCreatedAt()
+                r.getCreatedAt(),
+                attachments
         );
     }
 

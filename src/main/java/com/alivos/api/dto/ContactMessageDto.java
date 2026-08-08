@@ -9,12 +9,12 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseReviewDto {
+public class ContactMessageDto {
     private String id;
-    private String studentName;
-    private Integer rating;
-    private String comment;
-    private String mediaUrl;
-    private String mediaType;
+    private String name;
+    private String lastName;
+    private String email;
+    private String message;
+    private Boolean read;
     private Instant createdAt;
 }

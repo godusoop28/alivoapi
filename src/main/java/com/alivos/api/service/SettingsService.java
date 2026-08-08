@@ -18,7 +18,7 @@ public class SettingsService {
         Settings settings = settingsRepository.findById(Settings.SINGLETON_ID).orElse(null);
         if (settings == null) {
             return new SettingsDto(null, null, null, null, null, null, "ALIVOS Medicina de Rehabilitación",
-                    true, 0, 30, "1,2,3,4,5", "09:00", "18:00");
+                    true, 0, 30, "1,2,3,4,5", "09:00", "18:00", null, false);
         }
         return toDto(settings);
     }
@@ -44,6 +44,8 @@ public class SettingsService {
         if (input.getAdvisoryDays() != null) settings.setAdvisoryDays(input.getAdvisoryDays());
         if (input.getAdvisoryStartTime() != null) settings.setAdvisoryStartTime(input.getAdvisoryStartTime());
         if (input.getAdvisoryEndTime() != null) settings.setAdvisoryEndTime(input.getAdvisoryEndTime());
+        if (input.getPresentationVideoUrl() != null) settings.setPresentationVideoUrl(input.getPresentationVideoUrl());
+        if (input.getPresentationVideoEnabled() != null) settings.setPresentationVideoEnabled(input.getPresentationVideoEnabled());
 
         settings = settingsRepository.save(settings);
         return toDto(settings);
@@ -54,7 +56,8 @@ public class SettingsService {
                 settings.getWhatsapp(), settings.getEmail(), settings.getAppointmentUrl(),
                 settings.getInstagram(), settings.getFacebook(), settings.getWebsite(), settings.getBrandName(),
                 settings.getAdvisoryEnabled(), settings.getAdvisoryPrice(), settings.getAdvisorySlotMinutes(), settings.getAdvisoryDays(),
-                settings.getAdvisoryStartTime(), settings.getAdvisoryEndTime()
+                settings.getAdvisoryStartTime(), settings.getAdvisoryEndTime(),
+                settings.getPresentationVideoUrl(), settings.getPresentationVideoEnabled()
         );
     }
 }

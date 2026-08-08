@@ -49,6 +49,8 @@ public class ReviewService {
         }
         review.setRating(input.getRating());
         review.setComment(input.getComment());
+        review.setMediaUrl(input.getMediaUrl());
+        review.setMediaType(input.getMediaType());
         review = courseReviewRepository.save(review);
 
         return toDto(review);
@@ -63,6 +65,8 @@ public class ReviewService {
                         r.getUser().getName(),
                         r.getRating(),
                         r.getComment(),
+                        r.getMediaUrl(),
+                        r.getMediaType(),
                         r.getStatus(),
                         r.getCreatedAt()
                 ))
@@ -83,6 +87,8 @@ public class ReviewService {
                 review.getUser().getName(),
                 review.getRating(),
                 review.getComment(),
+                review.getMediaUrl(),
+                review.getMediaType(),
                 review.getCreatedAt()
         );
     }

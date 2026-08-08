@@ -3,6 +3,8 @@ package com.alivos.api.dto;
 import com.alivos.api.entity.ResourceType;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class LearningResourceRequest {
     private String title;
@@ -15,4 +17,5 @@ public class LearningResourceRequest {
     private String externalUrl;
     private Boolean visible;
     private Integer order;
+    private List<ResourceAttachmentRequest> attachments;
 }
